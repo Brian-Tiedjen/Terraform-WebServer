@@ -18,9 +18,8 @@ This is a personal project and not affiliated with my employer in any way. All r
 
 
 
-Subnets not working with ALB - Investigate
--need 2nd instance? 
-- Using same subnet - why? 
+Subnets not working with ALB - Investigate -need 2nd instance? - Using same subnet - why? 
+UPDATE:It was just incorrect variables - fixed before upload
 -Fix variables for subnets
 -intenet gateway getting hung on destroy? over 20 min = Deletetion Protection is on for the gateway
  
