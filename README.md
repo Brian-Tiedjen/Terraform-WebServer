@@ -22,4 +22,5 @@ Subnets not working with ALB - Investigate
 -need 2nd instance? 
 - Using same subnet - why? 
 -Fix variables for subnets
--intenet gateway getting hung on destroy? over 11 min
+-intenet gateway getting hung on destroy? over 20 min = Deletetion Protection is on for the gateway
+ 
