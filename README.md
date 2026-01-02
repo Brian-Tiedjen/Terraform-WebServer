@@ -17,9 +17,13 @@ Note:
 This is a personal project and not affiliated with my employer in any way. All resources created in this project are for demo purposes only and should not be used in production or sensitive environments.
 
 
+Issues
+~~Subnets not working with ALB - Investigate~~
+~~need 2nd instance?~~
+~~Using same subnet - why?~~ 
+~~Fix variables for subnets~~
+~~intenet gateway getting hung on destroy? over 20 min Update: not gateway but the ALB has deletion protection on, when I disable it destroy now works
+Update: Turned off deletion protection~~
+~~Can not detlete bucket (not empty and you must delete all versions in the bucket appear as errors) Added a force destroy flag for the s3 bucket~~
 
-Subnets not working with ALB - Investigate -need 2nd instance? - Using same subnet - why? 
-UPDATE:It was just incorrect variables - fixed before upload
--Fix variables for subnets
--intenet gateway getting hung on destroy? over 20 min = Deletetion Protection is on for the gateway
- 
+Future Update Ideas:
