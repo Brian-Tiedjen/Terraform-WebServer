@@ -41,11 +41,16 @@ This is a personal project and not affiliated with my employer in any way. All r
 
 Issues
 ~~Subnets not working with ALB - Investigate~~
+
 ~~need 2nd instance?~~
+
 ~~Using same subnet - why?~~ 
+
 ~~Fix variables for subnets~~
-~~intenet gateway getting hung on destroy? over 20 min Update: not gateway but the ALB has deletion protection on, when I disable it destroy now works
-Update: Turned off deletion protection~~
+
+~~intenet gateway getting hung on destroy? over 20 min Update: not gateway but the ALB has deletion protection on, when I disable it destroy now works~~
+~~Update: Turned off deletion protection~~
+
 ~~Can not detlete bucket (not empty and you must delete all versions in the bucket appear as errors) Added a force destroy flag for the s3 bucket~~
 
 Future Update Ideas:
