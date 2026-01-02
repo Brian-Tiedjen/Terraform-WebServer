@@ -62,7 +62,8 @@ resource "aws_route_table" "public_route_table" {
 }
 
 resource "aws_route_table" "private_route_table" {
-  vpc_id = aws_vpc.vpc.id
+  vpc_id     = aws_vpc.vpc.id
+  depends_on = [aws_nat_gateway.nat_gateway]
   route {
     cidr_block     = "0.0.0.0/0"
     nat_gateway_id = aws_nat_gateway.nat_gateway.id
@@ -106,7 +107,7 @@ resource "aws_eip" "nat_gateway_eip" {
 
 #Create NAT Gateway - only using one for cost and demo purposes
 resource "aws_nat_gateway" "nat_gateway" {
-  depends_on    = [aws_subnet.public_subnets]
+  depends_on    = [aws_internet_gateway.internet_gateway]
   allocation_id = aws_eip.nat_gateway_eip.id
   subnet_id     = aws_subnet.public_subnets["public_subnet_1"].id
   tags = {
@@ -175,6 +176,8 @@ resource "aws_s3_bucket" "backups_bucket" {
   tags = {
     Name = "demo_backups_bucket"
   }
+  force_destroy = true
+
 }
 resource "aws_s3_bucket_versioning" "backups_bucket_versioning" {
   bucket = aws_s3_bucket.backups_bucket.id
@@ -220,61 +223,6 @@ resource "aws_s3_bucket_policy" "alb_logs" {
   })
 }
 
-
-#alarms
-
-#EC2 Instance Alarms
-
-#create CloudWatch Metric Alarm for high CPU utilization
-resource "aws_cloudwatch_metric_alarm" "high_cpu" {
-  alarm_name          = "ec2-high-cpu"
-  comparison_operator = "GreaterThanThreshold"
-  evaluation_periods  = 2
-  metric_name         = "CPUUtilization"
-  namespace           = "AWS/EC2"
-  period              = 300
-  statistic           = "Average"
-  threshold           = 90
-
-  dimensions = {
-    InstanceId = aws_instance.web_server_private.id
-  }
-}
-
-#Status check alarm
-resource "aws_cloudwatch_metric_alarm" "ec2_status_check_failed" {
-  alarm_name          = "ec2-status-check-failed"
-  comparison_operator = "GreaterThanThreshold"
-  evaluation_periods  = 2
-  metric_name         = "StatusCheckFailed"
-  namespace           = "AWS/EC2"
-  period              = 300
-  statistic           = "Average"
-  threshold           = 1
-
-  dimensions = {
-    InstanceId = aws_instance.web_server_private.id
-  }
-}
-
-#ALB 5xx errors alarm
-resource "aws_cloudwatch_metric_alarm" "alb_5xx_errors" {
-  alarm_name          = "alb-5xx-errors"
-  comparison_operator = "GreaterThanThreshold"
-  evaluation_periods  = 2
-  metric_name         = "HTTPCode_Target_5XX_Count"
-  namespace           = "AWS/ApplicationELB"
-  period              = 300
-  statistic           = "Sum"
-  threshold           = 1
-
-  dimensions = {
-    LoadBalancer = aws_lb.alb_public.arn_suffix
-  }
-}
-
-
-
 #ALB Resources - Kept seprate for debugging
 resource "aws_lb" "alb_public" {
   name               = "demo-alb-public"
@@ -282,8 +230,8 @@ resource "aws_lb" "alb_public" {
   load_balancer_type = "application"
   security_groups    = [aws_security_group.alb_public_group.id]
   subnets            = [for subnet in aws_subnet.public_subnets : subnet.id]
+  depends_on         = [aws_security_group.alb_public_group]
 
-  enable_deletion_protection = true
 
   access_logs {
     bucket  = aws_s3_bucket.backups_bucket.bucket
@@ -355,4 +303,57 @@ resource "aws_security_group" "alb_public_group" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 }
+
+#alarms
+
+#EC2 Instance Alarms
+
+#create CloudWatch Metric Alarm for high CPU utilization
+resource "aws_cloudwatch_metric_alarm" "high_cpu" {
+  alarm_name          = "ec2-high-cpu"
+  comparison_operator = "GreaterThanThreshold"
+  evaluation_periods  = 2
+  metric_name         = "CPUUtilization"
+  namespace           = "AWS/EC2"
+  period              = 300
+  statistic           = "Average"
+  threshold           = 90
+
+  dimensions = {
+    InstanceId = aws_instance.web_server_private.id
+  }
+}
+
+#Status check alarm
+resource "aws_cloudwatch_metric_alarm" "ec2_status_check_failed" {
+  alarm_name          = "ec2-status-check-failed"
+  comparison_operator = "GreaterThanThreshold"
+  evaluation_periods  = 2
+  metric_name         = "StatusCheckFailed"
+  namespace           = "AWS/EC2"
+  period              = 300
+  statistic           = "Average"
+  threshold           = 1
+
+  dimensions = {
+    InstanceId = aws_instance.web_server_private.id
+  }
+}
+
+#ALB 5xx errors alarm
+resource "aws_cloudwatch_metric_alarm" "alb_5xx_errors" {
+  alarm_name          = "alb-5xx-errors"
+  comparison_operator = "GreaterThanThreshold"
+  evaluation_periods  = 2
+  metric_name         = "HTTPCode_Target_5XX_Count"
+  namespace           = "AWS/ApplicationELB"
+  period              = 300
+  statistic           = "Sum"
+  threshold           = 1
+
+  dimensions = {
+    LoadBalancer = aws_lb.alb_public.arn_suffix
+  }
+}
+
 
