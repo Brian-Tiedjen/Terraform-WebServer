@@ -9,10 +9,19 @@ data "aws_ami" "newest_linux_ami" {
   }
 }
 
+#Get ALB service account for S3 bucket policy
+data "aws_elb_service_account" "alb_service_account" {
+
+}
+
 #Get availability zones
 data "aws_availability_zones" "available" {
   state = "available"
 }
+
+#Get current AWS account ID
+data "aws_caller_identity" "current" {}
+
 
 #Define the VPC
 resource "aws_vpc" "vpc" {
@@ -125,7 +134,6 @@ resource "aws_security_group" "ec2_instance_sg" {
     from_port       = 80
     to_port         = 80
     protocol        = "tcp"
-    # Allow HTTP traffic only from the ALB security group
     security_groups = [aws_security_group.alb_public_group.id]
   }
   egress {
@@ -142,10 +150,13 @@ resource "aws_instance" "web_server_private" {
   instance_type          = var.instance_type
   subnet_id              = aws_subnet.private_subnets["private_subnet_1"].id
   vpc_security_group_ids = [aws_security_group.ec2_instance_sg.id]
+  iam_instance_profile   = aws_iam_instance_profile.ec2_profile.name
 
   user_data = <<-EOF
               #!/bin/bash
               sudo yum update -y
+              sudo yum install -y amazon-cloudwatch-agent
+              /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a fetch-config -m ec2 -c ssm:AmazonCloudWatch-linux -s
               amazon-linux-extras enable nginx1
               sudo yum install -y nginx
               sudo systemctl start nginx
@@ -164,6 +175,7 @@ resource "aws_instance" "web_server_private" {
               </body>
               </html>
               HTML
+
               EOF
 
   tags = {
@@ -171,60 +183,7 @@ resource "aws_instance" "web_server_private" {
   }
 }
 
-#Create S3 bucket for backups with versioning enabled and private ACL
-resource "aws_s3_bucket" "backups_bucket" {
-  bucket = "demo-backups-bucket-${random_string.random_string_ec2.result}"
-  tags = {
-    Name = "demo_backups_bucket"
-  }
-  force_destroy = true
-
-}
-resource "aws_s3_bucket_versioning" "backups_bucket_versioning" {
-  bucket = aws_s3_bucket.backups_bucket.id
-
-  versioning_configuration {
-    status = "Enabled"
-  }
-}
-#randmom string resource for S3 bucket name uniqueness
-resource "random_string" "random_string_ec2" {
-  length  = 6
-  special = false
-  upper   = false
-  lower   = true
-}
-
-resource "aws_s3_bucket_ownership_controls" "alb_logs" {
-  bucket = aws_s3_bucket.backups_bucket.id
-
-  rule {
-    object_ownership = "BucketOwnerPreferred"
-  }
-}
-
-
-data "aws_elb_service_account" "this" {}
-
-resource "aws_s3_bucket_policy" "alb_logs" {
-  bucket = aws_s3_bucket.backups_bucket.id
-
-  policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Effect = "Allow"
-        Principal = {
-          AWS = data.aws_elb_service_account.this.arn
-        }
-        Action   = "s3:PutObject"
-        Resource = "${aws_s3_bucket.backups_bucket.arn}/alb/*"
-      }
-    ]
-  })
-}
-
-#ALB Resources - Kept seprate for debugging
+#Create Application Load Balancer
 resource "aws_lb" "alb_public" {
   name               = "demo-alb-public"
   internal           = false
@@ -232,19 +191,18 @@ resource "aws_lb" "alb_public" {
   security_groups    = [aws_security_group.alb_public_group.id]
   subnets            = [for subnet in aws_subnet.public_subnets : subnet.id]
   depends_on         = [aws_security_group.alb_public_group]
-## enable_deletion_protection = true -Disable for demo purposes
 
   access_logs {
-    bucket  = aws_s3_bucket.backups_bucket.bucket
+    bucket  = aws_s3_bucket.logs_bucket.bucket
     prefix  = "alb"
     enabled = true
   }
-
   tags = {
     name = "demo-alb-public"
   }
 }
 
+#Create ALB Target Group
 resource "aws_lb_target_group" "demo_alb_group" {
   name        = "demo-alb-target-group"
   target_type = "instance"
@@ -263,16 +221,15 @@ resource "aws_lb_target_group" "demo_alb_group" {
   tags = {
     Name = "demo-alb-target-group"
   }
-
 }
-
+#Attach EC2 instance to ALB target group
 resource "aws_lb_target_group_attachment" "web_instance" {
   target_group_arn = aws_lb_target_group.demo_alb_group.arn
   target_id        = aws_instance.web_server_private.id
   port             = 80
 }
 
-
+#Create ALB listener
 resource "aws_lb_listener" "alb_listener" {
   load_balancer_arn = aws_lb.alb_public.arn
   port              = 80
@@ -282,7 +239,6 @@ resource "aws_lb_listener" "alb_listener" {
     type             = "forward"
     target_group_arn = aws_lb_target_group.demo_alb_group.arn
   }
-
 }
 
 #Security Group for ALB
@@ -304,6 +260,89 @@ resource "aws_security_group" "alb_public_group" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 }
+
+#Create S3 bucket for backups with versioning enabled and private ACL Note:Using one bucket for ALB logs and CloudTrail logs for cost efficiency in demo
+resource "aws_s3_bucket" "logs_bucket" {
+  bucket = "demo-logs-bucket-${random_string.random_string_ec2.result}"
+  tags = {
+    Name = "demo_logs_bucket"
+  }
+  force_destroy = true
+
+}
+
+resource "aws_s3_bucket_versioning" "logs_bucket_versioning" {
+  bucket = aws_s3_bucket.logs_bucket.id
+
+  versioning_configuration {
+    status = "Enabled"
+  }
+}
+
+#randmom string resource for S3 bucket name uniqueness
+resource "random_string" "random_string_ec2" {
+  length  = 6
+  special = false
+  upper   = false
+  lower   = true
+}
+
+resource "aws_s3_bucket_ownership_controls" "logs_bucket_ownership_controls" {
+  bucket = aws_s3_bucket.logs_bucket.id
+
+  rule {
+    object_ownership = "BucketOwnerPreferred"
+  }
+}
+
+#S3 Bucket Policy to allow ALB to write access logs and CloudTrail logging
+resource "aws_s3_bucket_policy" "logs_bucket_policy" {
+  bucket = aws_s3_bucket.logs_bucket.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      # ALB access logs
+      {
+        Sid    = "ALBAccessLogs"
+        Effect = "Allow"
+        Principal = {
+          AWS = data.aws_elb_service_account.alb_service_account.arn
+        }
+        Action   = "s3:PutObject"
+        Resource = "${aws_s3_bucket.logs_bucket.arn}/alb/*"
+      },
+
+      # CloudTrail ACL check
+      {
+        Sid    = "AWSCloudTrailAclCheck"
+        Effect = "Allow"
+        Principal = {
+          Service = "cloudtrail.amazonaws.com"
+        }
+        Action   = "s3:GetBucketAcl"
+        Resource = aws_s3_bucket.logs_bucket.arn
+      },
+
+      # CloudTrail write access
+      {
+        Sid    = "AWSCloudTrailWrite"
+        Effect = "Allow"
+        Principal = {
+          Service = "cloudtrail.amazonaws.com"
+        }
+        Action   = "s3:PutObject"
+        Resource = "${aws_s3_bucket.logs_bucket.arn}/AWSLogs/${data.aws_caller_identity.current.account_id}/*"
+        Condition = {
+          StringEquals = {
+            "s3:x-amz-acl" = "bucket-owner-full-control"
+          }
+        }
+      }
+    ]
+  })
+}
+
 
 #alarms
 
@@ -355,6 +394,135 @@ resource "aws_cloudwatch_metric_alarm" "alb_5xx_errors" {
   dimensions = {
     LoadBalancer = aws_lb.alb_public.arn_suffix
   }
+}
+
+#ALB Unhealthy Host Count Alarm
+resource "aws_cloudwatch_metric_alarm" "alb_unhealthy_hosts" {
+  alarm_name          = "alb-unhealthy-hosts"
+  comparison_operator = "GreaterThanThreshold"
+  evaluation_periods  = 2
+  metric_name         = "UnhealthyHostCount"
+  namespace           = "AWS/ApplicationELB"
+  period              = 300
+  statistic           = "Average"
+  threshold           = 1
+  dimensions = {
+    TargetGroup  = aws_lb_target_group.demo_alb_group.arn_suffix
+    LoadBalancer = aws_lb.alb_public.arn_suffix
+  }
+}
+
+#Logging
+resource "aws_cloudwatch_log_group" "app" {
+  name              = "/aws/app/demo-application-logs"
+  retention_in_days = 30
+}
+
+#CloudTrail logging
+resource "aws_cloudtrail" "demo_cloudtrail_logs" {
+  name                          = "demo-cloudtrail_logs"
+  s3_bucket_name                = aws_s3_bucket.logs_bucket.bucket
+  is_multi_region_trail         = true
+  enable_log_file_validation    = true
+  include_global_service_events = true
+
+  depends_on = [aws_s3_bucket_policy.logs_bucket_policy]
+}
+
+#VPC Flow Logs
+resource "aws_cloudwatch_log_group" "vpc_flow_logs" {
+  name              = "vpc/demo-vpc-flow-logs"
+  retention_in_days = 30
+}
+#setting VPC flow logs to capture REJECT traffic only to reduce costs
+resource "aws_flow_log" "vpc_rejects" {
+  vpc_id          = aws_vpc.vpc.id
+  traffic_type    = "REJECT"
+  log_destination = aws_cloudwatch_log_group.vpc_flow_logs.arn
+  iam_role_arn    = aws_iam_role.vpc_flow_role.arn
+}
+
+#IAM Role for VPC Flow Logs
+resource "aws_iam_role" "vpc_flow_role" {
+  name = "demo-vpc-flow-logs-role"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [{
+      Effect    = "Allow"
+      Principal = { Service = "vpc-flow-logs.amazonaws.com" }
+      Action    = "sts:AssumeRole"
+    }]
+  })
+}
+
+#IAM Role Policy for VPC Flow Logs
+resource "aws_iam_role_policy" "vpc_flow_policy" {
+  role = aws_iam_role.vpc_flow_role.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [{
+      Effect   = "Allow"
+      Action   = ["logs:CreateLogStream", "logs:PutLogEvents"]
+      Resource = "*"
+    }]
+  })
+}
+
+
+resource "aws_iam_role" "ec2_cw_role" {
+  name = "ec2-cloudwatch-agent-role"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [{
+      Effect    = "Allow"
+      Principal = { Service = "ec2.amazonaws.com" }
+      Action    = "sts:AssumeRole"
+    }]
+  })
+}
+
+resource "aws_iam_role_policy_attachment" "cw_agent" {
+  role       = aws_iam_role.ec2_cw_role.name
+  policy_arn = "arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy"
+}
+
+resource "aws_iam_instance_profile" "ec2_profile" {
+  name = "ec2-cloudwatch-profile"
+  role = aws_iam_role.ec2_cw_role.name
+
+}
+
+resource "aws_ssm_parameter" "cw_agent_config" {
+  name = "AmazonCloudWatch-linux"
+  type = "String"
+  value = jsonencode({
+    logs = {
+      logs_collected = {
+        files = {
+          collect_list = [
+            {
+              file_path       = "/var/log/messages"
+              log_group_name  = "/aws/ec2/system"
+              log_stream_name = "{instance_id}"
+            },
+            {
+              file_path       = "/var/log/nginx/access.log"
+              log_group_name  = "/aws/ec2/nginx/access"
+              log_stream_name = "{instance_id}"
+            },
+            {
+              file_path       = "/var/log/nginx/error.log"
+              log_group_name  = "/aws/ec2/nginx/error"
+              log_stream_name = "{instance_id}"
+            }
+          ]
+        }
+      }
+    }
+  })
 }
 
 
