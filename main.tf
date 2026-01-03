@@ -10,9 +10,7 @@ data "aws_ami" "newest_linux_ami" {
 }
 
 #Get ALB service account for S3 bucket policy
-data "aws_elb_service_account" "alb_service_account" {
-
-}
+data "aws_elb_service_account" "alb_service_account" {}
 
 #Get availability zones
 data "aws_availability_zones" "available" {
@@ -22,7 +20,6 @@ data "aws_availability_zones" "available" {
 #Get current AWS account ID
 data "aws_caller_identity" "current" {}
 
-
 #Define the VPC
 resource "aws_vpc" "vpc" {
   cidr_block = var.vpc_cidr
@@ -31,7 +28,6 @@ resource "aws_vpc" "vpc" {
     Environment = "AWS-Terraform"
   }
 }
-
 
 #Deploy the private subnets
 resource "aws_subnet" "private_subnets" {
@@ -175,7 +171,6 @@ resource "aws_instance" "web_server_private" {
               </body>
               </html>
               HTML
-
               EOF
 
   tags = {
@@ -343,10 +338,7 @@ resource "aws_s3_bucket_policy" "logs_bucket_policy" {
   })
 }
 
-
-#alarms
-
-#EC2 Instance Alarms
+#Alarms
 
 #create CloudWatch Metric Alarm for high CPU utilization
 resource "aws_cloudwatch_metric_alarm" "high_cpu" {
@@ -413,6 +405,8 @@ resource "aws_cloudwatch_metric_alarm" "alb_unhealthy_hosts" {
 }
 
 #Logging
+
+#CloudWatch Log Group for application logs
 resource "aws_cloudwatch_log_group" "app" {
   name              = "/aws/app/demo-application-logs"
   retention_in_days = 30
