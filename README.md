@@ -56,8 +56,8 @@ This is a personal project and not affiliated with my employer in any way. All r
 - ~~internet gateway getting hung on destroy? Over 20 min Update: not gateway but the ALB has deletion protection on, when I disable it, it no longer works~~
 - ~~Update: Turned off deletion protection~~
 - ~~Can not delete bucket (not empty and you must delete all versions in the bucket appear as errors) Added a force destroy flag for the S3 bucket~~
+- ~~ Add a diagram ~~
 
 ## Future Update Ideas
-- Add more logging
-- Add a diagram
+- Add more logging - VPC Flow Logs are a must
 - Auto Scaling Group  

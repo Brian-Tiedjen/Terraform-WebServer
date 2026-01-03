@@ -125,6 +125,7 @@ resource "aws_security_group" "ec2_instance_sg" {
     from_port       = 80
     to_port         = 80
     protocol        = "tcp"
+    # Allow HTTP traffic only from the ALB security group
     security_groups = [aws_security_group.alb_public_group.id]
   }
   egress {
@@ -231,7 +232,7 @@ resource "aws_lb" "alb_public" {
   security_groups    = [aws_security_group.alb_public_group.id]
   subnets            = [for subnet in aws_subnet.public_subnets : subnet.id]
   depends_on         = [aws_security_group.alb_public_group]
-
+## enable_deletion_protection = true -Disable for demo purposes
 
   access_logs {
     bucket  = aws_s3_bucket.backups_bucket.bucket
