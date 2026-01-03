@@ -44,6 +44,9 @@ Primary cost drivers:
 - S3 storage
 
 
+## Screen Shot of running server
+<img width="488" height="270" alt="image" src="https://github.com/user-attachments/assets/590e6c9b-841d-4621-bf89-60eb7d8d4267" />
+
 ## Notes
 
 This is a personal project and not affiliated with my employer in any way. All resources created in this project are for demo purposes only and should not be used in production or sensitive environments.
