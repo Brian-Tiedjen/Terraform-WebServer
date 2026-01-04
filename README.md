@@ -1,18 +1,31 @@
 ## Architecture summary 
 
-(ALB → private EC2 → NAT → IGW)
+Public ALB → Auto Scaling EC2 (private subnets) → NAT Gateway → Internet Gateway
+This architecture implements a fault-tolerant, scalable web tier using native Amazon Web Services patterns.
 
 ## What This Project Demonstrates
+
 This project provisions a production-style AWS network and compute stack using Terraform, including:
 
-- Multi-AZ VPC with public and private subnets
-- Internet Gateway + single NAT Gateway design
-- Public Application Load Balancer
-- Private EC2 web server behind ALB
-- Security group isolation between tiers
-- CloudWatch alarms and VPC Flow Logs
-- S3-backed Terraform state with DynamoDB locking
+This project provisions a production-style AWS network and compute stack using Terraform, with an emphasis on scalability, isolation, and observability.
 
+Key capabilities include:
+- Multi-AZ VPC with public and private subnets
+- Internet Gateway with single NAT Gateway (cost-aware design)
+- Public Application Load Balancer spanning multiple AZs
+- Auto Scaling Group of private EC2 web servers behind the ALB
+- Launch Template–based instance configuration
+- Security group isolation between ALB and EC2 tiers
+- Target tracking Auto Scaling policy (CPU @ 70%)
+- Rolling instance refresh for safe updates
+- IAM instance profile with least-privilege direction
+- Remote Terraform state stored in S3 with DynamoDB state locking
+
+Centralized logging:
+- ALB access logs
+- VPC Flow Logs
+- CloudTrail
+- CloudWatch Logs
 
 ## Module Versions
 
@@ -31,6 +44,9 @@ This project provisions a production-style AWS network and compute stack using T
 
 - terraform destroy -auto-approve
 
+Note: ALB deletion protection is disabled to allow clean teardown.
+
+
 ## Costs (Estimated)
 
 Costs are intentionally left as TBD.
@@ -44,16 +60,19 @@ Primary cost drivers:
 - S3 storage
 
 
-## Screen Shot of running server
+## Running Web Server (via ALB)
 <img width="488" height="270" alt="image" src="https://github.com/user-attachments/assets/590e6c9b-841d-4621-bf89-60eb7d8d4267" />
 
 
-## Screen shot of logs buckets
+## Logging Bucket
 <img width="1378" height="422" alt="image" src="https://github.com/user-attachments/assets/c500d422-c1c4-4ff0-8a1f-584d000845c4" />
 
 ## Notes
 
-This is a personal project and not affiliated with my employer in any way. All resources created in this project are for demo purposes only and should not be used in production or sensitive environments.
+- This is a personal learning and portfolio project.
+- Not affiliated with my employer.
+- Resources are created for demonstration purposes only.
+- Not intended for production or sensitive workloads.
 
 ## Issues
 - ~~Subnets not working with ALB - Investigate~~
@@ -68,3 +87,6 @@ This is a personal project and not affiliated with my employer in any way. All r
 - ~~Auto Scaling Group~~
   
 ## Future Update Ideas
+
+- Modularize infrastructure (VPC, ALB, ASG modules)
+- CI-driven Terraform (plan/apply via pipeline)
