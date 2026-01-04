@@ -175,7 +175,7 @@ resource "aws_launch_template" "web_server_lt" {
               <body>
                 <h1>It works! </h1>
                 <p>Deployed with Terraform</p>
-                <p>AutoScaling EC2 behind a public ALB</p>
+                <p>Private AutoScaling EC2 behind a public ALB</p>
               </body>
               </html>
               HTML
