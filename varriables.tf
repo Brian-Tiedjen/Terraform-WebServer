@@ -37,3 +37,13 @@ variable "private_subnets" {
 variable "instance_type" {
   default = "t3.micro"
 }
+
+variable "desired_capacity" {
+  default = 1
+}
+variable "max_size" {
+  default = 3
+}
+variable "min_size" {
+  default = 1
+}
