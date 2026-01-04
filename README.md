@@ -47,6 +47,10 @@ Primary cost drivers:
 ## Screen Shot of running server
 <img width="488" height="270" alt="image" src="https://github.com/user-attachments/assets/590e6c9b-841d-4621-bf89-60eb7d8d4267" />
 
+
+## Screen shot of logs buckets
+<img width="1378" height="422" alt="image" src="https://github.com/user-attachments/assets/c500d422-c1c4-4ff0-8a1f-584d000845c4" />
+
 ## Notes
 
 This is a personal project and not affiliated with my employer in any way. All resources created in this project are for demo purposes only and should not be used in production or sensitive environments.
