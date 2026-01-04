@@ -140,6 +140,79 @@ resource "aws_security_group" "ec2_instance_sg" {
   }
 }
 
+#AutoScaling Group and Launch Template
+
+#Launch Template for AutoScaling Group
+resource "aws_launch_template" "web_server_lt" {
+  name_prefix            = "demo-web-server-asg-"
+  image_id               = data.aws_ami.newest_linux_ami.id
+  instance_type          = var.instance_type
+  vpc_security_group_ids = [aws_security_group.ec2_instance_sg.id]
+  iam_instance_profile {
+    name = aws_iam_instance_profile.ec2_profile.name
+  }
+
+
+  lifecycle {
+    create_before_destroy = true
+  }
+  user_data = base64encode(<<-EOF
+              #!/bin/bash
+              sudo yum update -y
+              sudo yum install -y amazon-cloudwatch-agent
+              /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a fetch-config -m ec2 -c ssm:AmazonCloudWatch-linux -s
+              amazon-linux-extras enable nginx1
+              sudo yum install -y nginx
+              sudo systemctl start nginx
+              sudo systemctl enable nginx
+
+              cat <<HTML > /usr/share/nginx/html/index.html
+              <!DOCTYPE html>
+              <html>
+              <head>
+                <title>Terraform ALB Demo - AutoScaling</title>
+              </head>
+              <body>
+                <h1>It works! </h1>
+                <p>Deployed with Terraform</p>
+                <p>AutoScaling EC2 behind a public ALB</p>
+              </body>
+              </html>
+              HTML
+              EOF
+  )
+}
+
+#AutoScaling Group
+resource "aws_autoscaling_group" "web_server_asg" {
+  name                      = "demo-web-server-asg"
+  vpc_zone_identifier       = [for subnet in aws_subnet.private_subnets : subnet.id]
+  desired_capacity          = var.desired_capacity
+  max_size                  = var.max_size
+  min_size                  = var.min_size
+  health_check_type         = "ELB"
+  health_check_grace_period = 300
+  target_group_arns         = [aws_lb_target_group.demo_alb_group.arn]
+  enabled_metrics           = ["GroupMinSize", "GroupMaxSize", "GroupDesiredCapacity", "GroupInServiceInstances", "GroupPendingInstances", "GroupStandbyInstances", "GroupTerminatingInstances", "GroupTotalInstances"]
+
+  launch_template {
+    id      = aws_launch_template.web_server_lt.id
+    version = aws_launch_template.web_server_lt.latest_version
+  }
+
+  tag {
+    key                 = "Name"
+    value               = "WebServerAutoScalingInstance"
+    propagate_at_launch = true
+  }
+
+  lifecycle {
+    create_before_destroy = true
+  }
+}
+
+#Replaced by AutoScaling Group below
+/*
 #Create EC2 instance in private subnet
 resource "aws_instance" "web_server_private" {
   ami                    = data.aws_ami.newest_linux_ami.id
@@ -177,6 +250,7 @@ resource "aws_instance" "web_server_private" {
     "Name" = "WebServerInstancePrivate"
   }
 }
+*/
 
 #Create Application Load Balancer
 resource "aws_lb" "alb_public" {
@@ -196,6 +270,7 @@ resource "aws_lb" "alb_public" {
     name = "demo-alb-public"
   }
 }
+
 
 #Create ALB Target Group
 resource "aws_lb_target_group" "demo_alb_group" {
@@ -217,12 +292,14 @@ resource "aws_lb_target_group" "demo_alb_group" {
     Name = "demo-alb-target-group"
   }
 }
+/*
 #Attach EC2 instance to ALB target group
 resource "aws_lb_target_group_attachment" "web_instance" {
   target_group_arn = aws_lb_target_group.demo_alb_group.arn
   target_id        = aws_instance.web_server_private.id
   port             = 80
 }
+*/
 
 #Create ALB listener
 resource "aws_lb_listener" "alb_listener" {
@@ -340,6 +417,8 @@ resource "aws_s3_bucket_policy" "logs_bucket_policy" {
 
 #Alarms
 
+# Alarms removed for EC2 instance as replaced by AutoScaling Group
+/*
 #create CloudWatch Metric Alarm for high CPU utilization
 resource "aws_cloudwatch_metric_alarm" "high_cpu" {
   alarm_name          = "ec2-high-cpu"
@@ -356,6 +435,7 @@ resource "aws_cloudwatch_metric_alarm" "high_cpu" {
   }
 }
 
+
 #Status check alarm
 resource "aws_cloudwatch_metric_alarm" "ec2_status_check_failed" {
   alarm_name          = "ec2-status-check-failed"
@@ -371,6 +451,7 @@ resource "aws_cloudwatch_metric_alarm" "ec2_status_check_failed" {
     InstanceId = aws_instance.web_server_private.id
   }
 }
+*/
 
 #ALB 5xx errors alarm
 resource "aws_cloudwatch_metric_alarm" "alb_5xx_errors" {
@@ -518,5 +599,4 @@ resource "aws_ssm_parameter" "cw_agent_config" {
     }
   })
 }
-
 
