@@ -194,12 +194,19 @@ resource "aws_autoscaling_group" "web_server_asg" {
   health_check_grace_period = 300
   target_group_arns         = [aws_lb_target_group.demo_alb_group.arn]
   enabled_metrics           = ["GroupMinSize", "GroupMaxSize", "GroupDesiredCapacity", "GroupInServiceInstances", "GroupPendingInstances", "GroupStandbyInstances", "GroupTerminatingInstances", "GroupTotalInstances"]
+  termination_policies      = ["OldestInstance", "ClosestToNextInstanceHour"]
+  protect_from_scale_in     = true
 
   launch_template {
     id      = aws_launch_template.web_server_lt.id
     version = aws_launch_template.web_server_lt.latest_version
   }
-
+  instance_refresh {
+    strategy = "Rolling"
+    preferences {
+      min_healthy_percentage = 50
+    }
+  }
   tag {
     key                 = "Name"
     value               = "WebServerAutoScalingInstance"
@@ -208,6 +215,20 @@ resource "aws_autoscaling_group" "web_server_asg" {
 
   lifecycle {
     create_before_destroy = true
+  }
+}
+
+resource "aws_autoscaling_policy" "cpu_target_tracking" {
+  name                   = "cpu-70-target-tracking"
+  policy_type            = "TargetTrackingScaling"
+  autoscaling_group_name = aws_autoscaling_group.web_server_asg.name
+
+  target_tracking_configuration {
+    predefined_metric_specification {
+      predefined_metric_type = "ASGAverageCPUUtilization"
+    }
+
+    target_value = 70.0
   }
 }
 
@@ -282,7 +303,7 @@ resource "aws_lb_target_group" "demo_alb_group" {
   health_check {
     path                = "/"
     protocol            = "HTTP"
-    matcher             = "200"
+    matcher             = "200-399"
     interval            = 30
     timeout             = 5
     healthy_threshold   = 2
