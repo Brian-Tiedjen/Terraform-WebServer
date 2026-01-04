@@ -65,6 +65,6 @@ This is a personal project and not affiliated with my employer in any way. All r
 - ~~Can not delete bucket (not empty and you must delete all versions in the bucket appear as errors) Added a force destroy flag for the S3 bucket~~
 - ~~Add a diagram~~
 - ~~Add more logging~~
-
+- ~~Auto Scaling Group~~
+  
 ## Future Update Ideas
-- Auto Scaling Group  
