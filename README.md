@@ -1,7 +1,7 @@
 ## Architecture summary 
 
 Public ALB → Auto Scaling EC2 (private subnets) → NAT Gateway → Internet Gateway
-This architecture implements a fault-tolerant, scalable web tier using native Amazon Web Services patterns.
+- This architecture implements a fault-tolerant, scalable web tier using native Amazon Web Services patterns.
 
 ## What This Project Demonstrates
 
