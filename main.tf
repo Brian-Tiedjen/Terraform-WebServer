@@ -566,7 +566,7 @@ resource "aws_iam_role_policy" "vpc_flow_policy" {
   })
 }
 
-
+#IAM Role and Instance Profile for EC2 CloudWatch Agent
 resource "aws_iam_role" "ec2_cw_role" {
   name = "ec2-cloudwatch-agent-role"
 
@@ -580,17 +580,20 @@ resource "aws_iam_role" "ec2_cw_role" {
   })
 }
 
+#Attach CloudWatch Agent Policy to IAM Role
 resource "aws_iam_role_policy_attachment" "cw_agent" {
   role       = aws_iam_role.ec2_cw_role.name
   policy_arn = "arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy"
 }
 
+#IAM Instance Profile for EC2
 resource "aws_iam_instance_profile" "ec2_profile" {
   name = "ec2-cloudwatch-profile"
   role = aws_iam_role.ec2_cw_role.name
 
 }
 
+#SSM Parameter for CloudWatch Agent configuration
 resource "aws_ssm_parameter" "cw_agent_config" {
   name = "AmazonCloudWatch-linux"
   type = "String"
