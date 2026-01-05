@@ -18,8 +18,9 @@ Key capabilities include:
 - Security group isolation between ALB and EC2 tiers
 - Target tracking Auto Scaling policy (CPU @ 70%)
 - Rolling instance refresh for safe updates
-- IAM instance profile with least-privilege direction
+- IAM instance profile with least-privilege intent
 - Remote Terraform state stored in S3 with DynamoDB state locking
+- CICD Intergration with GitHub Actions + Enviorment Secrets
 
 Centralized logging:
 - ALB access logs
@@ -73,6 +74,29 @@ Primary cost drivers:
 - Resources are created for demonstration purposes only.
 - Not intended for production or sensitive workloads.
 
+## Security Considerations
+
+- EC2 instances are deployed exclusively in private subnets
+- No inbound internet access to compute resources
+- ALB is the only public-facing component
+- Security groups enforce ALB → EC2 traffic only
+- IAM roles scoped to CloudWatch + SSM only
+- VPC Flow Logs capture rejected traffic for analysis
+
+## Failure & Recovery Behavior
+
+- EC2 instance failure triggers automatic replacement via ASG
+- ALB health checks remove unhealthy targets
+- Multi-AZ design tolerates single AZ failure
+- Rolling instance refresh prevents full capacity loss during updates
+
+## CI/CD Workflow
+
+- Pull Requests: terraform init / fmt / validate / plan
+- Main Branch Push: approved plan is applied automatically
+- Terraform state stored remotely with DynamoDB locking
+- Apply needs Approval Via GitHub environment protections
+
 ## Issues
 - ~~Subnets not working with ALB - Investigate~~
 - ~~need 2nd instance?~~
@@ -84,8 +108,13 @@ Primary cost drivers:
 - ~~Add a diagram~~
 - ~~Add more logging~~
 - ~~Auto Scaling Group~~
+- ~~CI-driven Terraform (plan/apply via pipeline)~~
   
 ## Future Update Ideas
 
 - Modularize infrastructure (VPC, ALB, ASG modules)
-- CI-driven Terraform (plan/apply via pipeline)
+- SSM Session Manager working for EC2
+- Remote Backend hardening (also getting depreciated commanad error on Dynomo_DB so will need to investigate)
+- WAF?
+- HTTPS Listener
+ 
