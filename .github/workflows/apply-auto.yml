@@ -1,9 +1,10 @@
 name: Approve Terraform
 
 on:
-  pull_request:
-    branches: [ "main" ]
+  push:
+     branches: [ "main" ]
   workflow_dispatch:
+  pull_request:
 
 permissions:
   contents: read
@@ -19,6 +20,8 @@ jobs:
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
+        with:
+         terraform_version: 1.14.3
 
 
       - name: Configure AWS credentials
@@ -56,6 +59,8 @@ jobs:
       - uses: actions/checkout@v4
 
       - uses: hashicorp/setup-terraform@v3
+        with:
+            terraform_version: 1.14.3
 
 
       - uses: aws-actions/configure-aws-credentials@v4
