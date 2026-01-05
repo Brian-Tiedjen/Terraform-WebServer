@@ -1,4 +1,4 @@
-name: Terraform
+name: Approve Terraform
 
 on:
   pull_request:
