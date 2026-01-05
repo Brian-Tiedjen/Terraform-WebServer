@@ -61,8 +61,7 @@ Primary cost drivers:
 
 
 ## Running Web Server (via ALB)
-<img width="488" height="270" alt="image" src="https://github.com/user-attachments/assets/590e6c9b-841d-4621-bf89-60eb7d8d4267" />
-
+<img width="501" height="223" alt="image" src="https://github.com/user-attachments/assets/e606c490-2ffa-45e0-aedb-76787abb2257" />
 
 ## Logging Bucket
 <img width="1378" height="422" alt="image" src="https://github.com/user-attachments/assets/c500d422-c1c4-4ff0-8a1f-584d000845c4" />
