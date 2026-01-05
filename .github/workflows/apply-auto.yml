@@ -51,8 +51,7 @@ jobs:
     runs-on: ubuntu-latest
     environment: production
     needs: terraform
-    if: github.ref == 'refs/heads/main'
-
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     steps:
       - uses: actions/checkout@v4
 
