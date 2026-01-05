@@ -1,4 +1,4 @@
-name: Terraform
+name: Plan-Pipeline
 
 on:
   pull_request:
