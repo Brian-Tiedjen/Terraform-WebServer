@@ -623,4 +623,3 @@ resource "aws_ssm_parameter" "cw_agent_config" {
     }
   })
 }
-
