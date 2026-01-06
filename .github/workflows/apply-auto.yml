@@ -30,7 +30,7 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: us-east-2
 
-      - name: Terraform Init
+      - name: Terraform Init (prod)
         run: |
            terraform init\
            -backend-config="bucket=backup-bucket-for-terraform" \
@@ -45,7 +45,7 @@ jobs:
       - name: Terraform Validate
         run: terraform validate
 
-      - name: Terraform Plan
+      - name: Terraform Plan (prod)
         run: terraform plan -no-color -out=tfplan -var-file=env/production.tfvars
 
       - name: Upload Terraform Plan
@@ -78,7 +78,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: tfplan
-
+      - name: terraform init (prod)
       - run: |
          terraform init\
           -backend-config="bucket=backup-bucket-for-terraform" \
