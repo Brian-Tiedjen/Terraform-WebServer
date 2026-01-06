@@ -7,7 +7,7 @@ variable "vpc_name" {
   type    = string
   default = "demo_vpc"
 }
-variable "enviorment" {
+variable "environment" {
   type = string
 }
 variable "vpc_cidr" {
