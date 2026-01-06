@@ -31,12 +31,13 @@ jobs:
           aws-region: us-east-2
 
       - name: Terraform Init
-        run: terraform init\
-          -backend-config="bucket=backup-bucket-for-terraform" \
-          -backend-config="key=demo/production/terraform.tfstate" \
-          -backend-config="region=us-east-2" \
-          -backend-config="dynamodb_table=terraform-locks" \
-          -backend-config="encrypt=true"
+        run: |
+           terraform init\
+           -backend-config="bucket=backup-bucket-for-terraform" \
+           -backend-config="key=demo/production/terraform.tfstate" \
+           -backend-config="region=us-east-2" \
+           -backend-config="dynamodb_table=terraform-locks" \
+           -backend-config="encrypt=true"
 
       - name: Terraform Format
         run: terraform fmt -check
@@ -78,7 +79,8 @@ jobs:
         with:
           name: tfplan
 
-      - run: terraform init\
+      - run: |
+         terraform init\
           -backend-config="bucket=backup-bucket-for-terraform" \
           -backend-config="key=demo/production/terraform.tfstate" \
           -backend-config="region=us-east-2" \
