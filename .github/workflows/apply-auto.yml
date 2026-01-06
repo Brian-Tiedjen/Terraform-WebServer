@@ -32,7 +32,7 @@ jobs:
 
       - name: Terraform Init (prod)
         run: |
-           terraform init\
+           terraform init \
            -backend-config="bucket=backup-bucket-for-terraform" \
            -backend-config="key=demo/production/terraform.tfstate" \
            -backend-config="region=us-east-2" \
