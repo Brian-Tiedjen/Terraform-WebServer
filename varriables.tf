@@ -5,6 +5,7 @@ variable "region" {
 
 variable "vpc_name" {
   type = string
+
 }
 
 variable "environment" {

@@ -24,7 +24,7 @@ data "aws_caller_identity" "current" {}
 resource "aws_vpc" "vpc" {
   cidr_block = var.vpc_cidr
   tags = {
-    Name        = var.vpc_name
+    Name        = "${var.environment}-vpc"
     Environment = "AWS-Terraform"
   }
 }
@@ -62,7 +62,7 @@ resource "aws_route_table" "public_route_table" {
   }
 
   tags = {
-    Name = "demo_public_route_table"
+    Name = "${var.environment}_public_route_table"
   }
 }
 
@@ -75,7 +75,7 @@ resource "aws_route_table" "private_route_table" {
   }
 
   tags = {
-    Name = "demo_private_route_table"
+    Name = "${var.environment}_private_route_table"
   }
 }
 
@@ -98,7 +98,7 @@ resource "aws_route_table_association" "private" {
 resource "aws_internet_gateway" "internet_gateway" {
   vpc_id = aws_vpc.vpc.id
   tags = {
-    Name = "demo_internet_gateway"
+    Name = "${var.environment}_internet_gateway"
   }
 }
 
@@ -106,7 +106,7 @@ resource "aws_internet_gateway" "internet_gateway" {
 resource "aws_eip" "nat_gateway_eip" {
   depends_on = [aws_internet_gateway.internet_gateway]
   tags = {
-    Name = "demo_nat_gateway_eip"
+    Name = "${var.environment}_nat_gateway_eip"
   }
 }
 
@@ -116,7 +116,7 @@ resource "aws_nat_gateway" "nat_gateway" {
   allocation_id = aws_eip.nat_gateway_eip.id
   subnet_id     = aws_subnet.public_subnets["public_subnet_1"].id
   tags = {
-    Name = "demo_nat_gateway"
+    Name = "${var.environment}_nat_gateway"
   }
 }
 
@@ -288,7 +288,7 @@ resource "aws_lb" "alb_public" {
     enabled = true
   }
   tags = {
-    name = "demo-alb-public"
+    name = "${var.environment}-alb-public"
   }
 }
 
@@ -310,7 +310,7 @@ resource "aws_lb_target_group" "demo_alb_group" {
     unhealthy_threshold = 2
   }
   tags = {
-    Name = "demo-alb-target-group"
+    Name = "${var.environment}-alb-target-group"
   }
 }
 /*
@@ -358,7 +358,7 @@ resource "aws_security_group" "alb_public_group" {
 resource "aws_s3_bucket" "logs_bucket" {
   bucket = "demo-logs-bucket-${random_string.random_string_ec2.result}"
   tags = {
-    Name = "demo_logs_bucket"
+    Name = "${var.environment}_logs_bucket"
   }
   force_destroy = true
 
