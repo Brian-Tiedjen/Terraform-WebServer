@@ -3,10 +3,6 @@ variable "region" {
   default = "us-east-2"
 }
 
-variable "vpc_name" {
-  type = string
-
-}
 
 variable "environment" {
   type = string
