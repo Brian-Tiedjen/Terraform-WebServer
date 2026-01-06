@@ -1,0 +1,33 @@
+name: Destroy Terraform
+
+on:
+  workflow_dispatch:
+
+jobs:
+  destroy:
+    runs-on: ubuntu-latest
+    environment: production
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.14.3
+
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-2
+
+      - name: Terraform Init
+        run: terraform init \
+          -backend-config="bucket=backup-bucket-for-terraform" \
+          -backend-config="key=demo/production/terraform.tfstate" \
+          -backend-config="region=us-east-2" \
+          -backend-config="dynamodb_table=terraform-locks" \
+          -backend-config="encrypt=true"
+
+      - name: Terraform Destroy
+        run: terraform destroy -auto-approve -var-file=env/production.tfvars
