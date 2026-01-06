@@ -29,7 +29,8 @@ jobs:
           aws-region: us-east-2
           
       - name: Terraform Init (Dev)
-        run: terraform init \
+        run: | 
+          terraform init \
             -backend-config="bucket=backup-bucket-for-terraform" \
             -backend-config="key=demo/dev/terraform.tfstate" \
             -backend-config="region=us-east-2" \
