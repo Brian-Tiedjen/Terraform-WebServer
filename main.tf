@@ -144,7 +144,7 @@ resource "aws_security_group" "ec2_instance_sg" {
 
 #Launch Template for AutoScaling Group
 resource "aws_launch_template" "web_server_lt" {
-  name_prefix            = "demo-web-server-asg-"
+  name_prefix            = "${var.environment}-web-server-asg-"
   image_id               = data.aws_ami.newest_linux_ami.id
   instance_type          = var.instance_type
   vpc_security_group_ids = [aws_security_group.ec2_instance_sg.id]
@@ -185,7 +185,7 @@ resource "aws_launch_template" "web_server_lt" {
 
 #AutoScaling Group
 resource "aws_autoscaling_group" "web_server_asg" {
-  name                      = "demo-web-server-asg"
+  name                      = "${var.environment}-web-server-asg"
   vpc_zone_identifier       = [for subnet in aws_subnet.private_subnets : subnet.id]
   desired_capacity          = var.desired_capacity
   max_size                  = var.max_size
@@ -275,7 +275,7 @@ resource "aws_instance" "web_server_private" {
 
 #Create Application Load Balancer
 resource "aws_lb" "alb_public" {
-  name               = "demo-alb-public"
+  name               = "${var.environment}-alb-public"
   internal           = false
   load_balancer_type = "application"
   security_groups    = [aws_security_group.alb_public_group.id]
@@ -295,7 +295,7 @@ resource "aws_lb" "alb_public" {
 
 #Create ALB Target Group
 resource "aws_lb_target_group" "demo_alb_group" {
-  name        = "demo-alb-target-group"
+  name        = "${var.environment}-alb-target-group"
   target_type = "instance"
   port        = 80
   protocol    = "HTTP"
@@ -316,7 +316,7 @@ resource "aws_lb_target_group" "demo_alb_group" {
 /*
 #Attach EC2 instance to ALB target group
 resource "aws_lb_target_group_attachment" "web_instance" {
-  target_group_arn = aws_lb_target_group.demo_alb_group.arn
+  target_group_arn = aws_lb_target_group.${var.environment}_alb_group.arn
   target_id        = aws_instance.web_server_private.id
   port             = 80
 }
@@ -356,7 +356,7 @@ resource "aws_security_group" "alb_public_group" {
 
 #Create S3 bucket for backups with versioning enabled and private ACL Note:Using one bucket for ALB logs and CloudTrail logs for cost efficiency in demo
 resource "aws_s3_bucket" "logs_bucket" {
-  bucket = "demo-logs-bucket-${random_string.random_string_ec2.result}"
+  bucket = "${var.environment}-logs-bucket-${random_string.random_string_ec2.result}"
   tags = {
     Name = "${var.environment}_logs_bucket"
   }
