@@ -1,17 +1,18 @@
 
 variable "region" {
   default = "us-east-2"
-
 }
+
 variable "vpc_name" {
-  type    = string
+  type = string
 }
 
 variable "environment" {
   type = string
 }
+
 variable "vpc_cidr" {
-  type    = string
+  type = string
 }
 
 variable "public_subnets" {
@@ -44,9 +45,11 @@ variable "instance_type" {
 variable "desired_capacity" {
   default = 1
 }
+
 variable "max_size" {
   default = 3
 }
+
 variable "min_size" {
   default = 1
 }
