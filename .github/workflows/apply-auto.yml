@@ -4,7 +4,6 @@ on:
   push:
      branches: [ "main" ]
   workflow_dispatch:
-  pull_request:
 
 permissions:
   contents: read
@@ -32,7 +31,12 @@ jobs:
           aws-region: us-east-2
 
       - name: Terraform Init
-        run: terraform init
+        run: terraform init\
+          -backend-config="bucket=backup-bucket-for-terraform" \
+          -backend-config="key=demo/production/terraform.tfstate" \
+          -backend-config="region=us-east-2" \
+          -backend-config="dynamodb_table=terraform-locks" \
+          -backend-config="encrypt=true"
 
       - name: Terraform Format
         run: terraform fmt -check
@@ -41,7 +45,7 @@ jobs:
         run: terraform validate
 
       - name: Terraform Plan
-        run: terraform plan -no-color -out=tfplan
+        run: terraform plan -no-color -out=tfplan -var-file=env/production.tfvars
 
       - name: Upload Terraform Plan
         uses: actions/upload-artifact@v4
@@ -54,7 +58,7 @@ jobs:
     runs-on: ubuntu-latest
     environment: production
     needs: terraform
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    if: github.event_name == 'push'
     steps:
       - uses: actions/checkout@v4
 
@@ -74,5 +78,11 @@ jobs:
         with:
           name: tfplan
 
-      - run: terraform init
-      - run: terraform apply -auto-approve tfplan
+      - run: terraform init\
+          -backend-config="bucket=backup-bucket-for-terraform" \
+          -backend-config="key=demo/production/terraform.tfstate" \
+          -backend-config="region=us-east-2" \
+          -backend-config="dynamodb_table=terraform-locks" \
+          -backend-config="encrypt=true"
+
+      - run: terraform apply -auto-approve tfplan -var-file=production.tfvars
