@@ -2,6 +2,8 @@ name: Destroy Terraform
 
 on:
   workflow_dispatch:
+permissions:
+ contents: read
 
 jobs:
   destroy:
