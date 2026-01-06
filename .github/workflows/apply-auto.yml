@@ -59,7 +59,7 @@ jobs:
     runs-on: ubuntu-latest
     environment: production
     needs: terraform
-    if: github.event_name == 'push'
+if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
 
     steps:
     - uses: actions/checkout@v4
