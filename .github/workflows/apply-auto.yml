@@ -59,33 +59,32 @@ jobs:
     runs-on: ubuntu-latest
     environment: production
     needs: terraform
-if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
-
+    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
     steps:
-    - uses: actions/checkout@v4
-    - uses: hashicorp/setup-terraform@v3
-      with:
-        terraform_version: 1.14.3
+      - uses: actions/checkout@v4
+      - uses: hashicorp/setup-terraform@v3
+        with:
+         terraform_version: 1.14.3
 
-    - uses: aws-actions/configure-aws-credentials@v4
-      with:
-        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        aws-region: us-east-2
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+           aws-region: us-east-2
 
-    - name: Download Terraform Plan
-      uses: actions/download-artifact@v4
-      with:
-        name: tfplan
+      - name: Download Terraform Plan
+        uses: actions/download-artifact@v4
+        with:
+         name: tfplan
 
-    - name: Terraform Init (prod)
-      run: |
-        terraform init \
+      - name: Terraform Init (prod)
+        run: |
+          terraform init \
           -backend-config="bucket=backup-bucket-for-terraform" \
           -backend-config="key=demo/production/terraform.tfstate" \
           -backend-config="region=us-east-2" \
           -backend-config="dynamodb_table=terraform-locks" \
           -backend-config="encrypt=true"
 
-    - name: Terraform Apply
-      run: terraform apply -auto-approve tfplan -var-file=env/production.tfvars
+      - name: Terraform Apply
+        run: terraform apply -auto-approve tfplan
