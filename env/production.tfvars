@@ -3,22 +3,22 @@ vpc_cidr      = "10.10.0.0/16"
 instance_type = "t3.micro"
 public_subnets = {
   public_a = {
-    cidr = 10
+    cidr = "10.10.10.0/24"
     az   = "us-east-2a"
   }
   public_b = {
-    cidr = 20
+    cidr = "10.10.11.0/24"
     az   = "us-east-2b"
   }
 }
 
 private_subnets = {
   private_a = {
-    cidr = 100
+    cidr = "10.10.20.0/24"
     az   = "us-east-2a"
   }
   private_b = {
-    cidr = 110
+    cidr = "10.10.21.0/24"
     az   = "us-east-2b"
   }
 }
