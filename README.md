@@ -1,11 +1,10 @@
 ## Architecture summary 
 
 Public ALB → Auto Scaling EC2 (private subnets) → NAT Gateway → Internet Gateway
+
 - This architecture implements a fault-tolerant, scalable web tier using native Amazon Web Services patterns.
 
 ## What This Project Demonstrates
-
-This project provisions a production-style AWS network and compute stack using Terraform, including:
 
 This project provisions a production-style AWS network and compute stack using Terraform, with an emphasis on scalability, isolation, and observability.
 
@@ -21,6 +20,7 @@ Key capabilities include:
 - IAM instance profile with least-privilege intent
 - Remote Terraform state stored in S3 with DynamoDB state locking
 - CICD Intergration with GitHub Actions + Enviorment Secrets
+- Module-based infrastructure design
 
 Centralized logging:
 - ALB access logs
@@ -67,13 +67,6 @@ Primary cost drivers:
 ## Logging Bucket
 <img width="1378" height="422" alt="image" src="https://github.com/user-attachments/assets/c500d422-c1c4-4ff0-8a1f-584d000845c4" />
 
-## Notes
-
-- This is a personal learning and portfolio project.
-- Not affiliated with my employer.
-- Resources are created for demonstration purposes only.
-- Not intended for production or sensitive workloads.
-
 ## Security Considerations
 
 - EC2 instances are deployed exclusively in private subnets
@@ -97,6 +90,24 @@ Primary cost drivers:
 - Terraform state stored remotely with DynamoDB locking
 - Apply needs Approval Via GitHub environment protections
 
+## Why Modules?
+
+The goals of modularization are to:
+
+- Establish clear boundaries between infrastructure concerns (networking, load balancing, compute)
+- Make dependencies explicit through well-defined inputs and outputs
+- Improve readability and long-term maintainability
+- Model how infrastructure scales across teams, not just resources
+
+
+## Notes
+
+- This is a personal learning and portfolio project.
+- Not affiliated with my employer.
+- Resources are created for demonstration purposes only.
+- Not intended for production or sensitive workloads.
+
+
 ## Issues
 - ~~Subnets not working with ALB - Investigate~~
 - ~~need 2nd instance?~~
@@ -109,10 +120,11 @@ Primary cost drivers:
 - ~~Add more logging~~
 - ~~Auto Scaling Group~~
 - ~~CI-driven Terraform (plan/apply via pipeline)~~
+- ~~Addional Destroy maunal pipeline~~
+- ~~Modularize infrastructure (VPC, ALB, ASG modules)~~
   
 ## Future Update Ideas
 
-- Modularize infrastructure (VPC, ALB, ASG modules)
 - SSM Session Manager working for EC2
 - Remote Backend hardening (also getting depreciated commanad error on Dynomo_DB so will need to investigate)
 - WAF?

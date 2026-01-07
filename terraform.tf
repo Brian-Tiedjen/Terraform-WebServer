@@ -10,7 +10,6 @@ terraform {
     encrypt        = true
   }
 
-
   required_providers {
     aws = {
       source  = "hashicorp/aws"
@@ -25,18 +24,5 @@ terraform {
       source  = "hashicorp/local"
       version = "2.6.1"
     }
-  }
-}
-
-#provider block and default tags
-provider "aws" {
-  region = var.region
-  default_tags {
-    tags = {
-      Environment = "demo"
-      Project     = "Terraform-AWS-VPC"
-      terraform   = "true"
-    }
-
   }
 }
