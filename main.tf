@@ -6,6 +6,11 @@ module "vpc" {
   environment     = var.environment
 }
 
+# Availability zones for outputs (matches pre-module outputs)
+data "aws_availability_zones" "available" {
+  state = "available"
+}
+
 #call logging module
 module "logging" {
   source      = "./modules/logging"

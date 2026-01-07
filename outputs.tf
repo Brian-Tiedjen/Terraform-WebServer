@@ -2,8 +2,28 @@ output "vpc_id" {
   value = module.vpc.vpc_id
 }
 
+output "VPC_ID" {
+  value = module.vpc.vpc_id
+}
+
+output "vpc_cidr" {
+  value = var.vpc_cidr
+}
+
+output "availability_zones" {
+  value = data.aws_availability_zones.available.names
+}
+
 output "alb_dns_name" {
   value = module.alb.alb_dns_name
+}
+
+output "alb_logs_bucket_name" {
+  value = module.logging.alb_logs_bucket_name
+}
+
+output "target_group_arn" {
+  value = module.alb.target_group_arn
 }
 
 output "alb_url" {
