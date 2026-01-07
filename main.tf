@@ -45,7 +45,6 @@ module "compute" {
   desired_capacity      = var.desired_capacity
   security_group_id     = module.security.ec2_instance_sg_id
   instance_profile_name = module.iam.instance_profile_name
-  public_subnet_ids     = module.vpc.public_subnet_ids
   private_subnet_ids    = module.vpc.private_subnet_ids
   target_group_arns     = module.alb.demo_alb_group_arns
 }

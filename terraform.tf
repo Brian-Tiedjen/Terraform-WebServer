@@ -2,13 +2,7 @@
 terraform {
   required_version = ">= 1.14.3"
 
-  backend "s3" {
-    bucket         = "backup-bucket-for-terraform"
-    key            = "demo/terraform.tfstate"
-    region         = "us-east-2"
-    dynamodb_table = "terraform-locks"
-    encrypt        = true
-  }
+  backend "s3" {}
 
   required_providers {
     aws = {

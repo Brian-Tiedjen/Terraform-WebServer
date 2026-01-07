@@ -76,6 +76,12 @@ Primary cost drivers:
 - IAM roles scoped to CloudWatch + SSM only
 - VPC Flow Logs capture rejected traffic for analysis
 
+## SSM Access
+
+- EC2 instances register in Systems Manager → Managed Instances
+- Use Session Manager for shell access (no SSH required)
+- Private subnets reach SSM APIs via the NAT Gateway
+
 ## Failure & Recovery Behavior
 
 - EC2 instance failure triggers automatic replacement via ASG

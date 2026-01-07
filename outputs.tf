@@ -34,6 +34,10 @@ output "asg_name" {
   value = module.compute.asg_name
 }
 
+output "instance_role_name" {
+  value = module.iam.instance_role_name
+}
+
 output "public_subnet_ids" {
   value = module.vpc.public_subnet_ids
 }

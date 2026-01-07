@@ -53,7 +53,7 @@ resource "aws_autoscaling_group" "web_server_asg" {
   target_group_arns         = var.target_group_arns
   enabled_metrics           = ["GroupMinSize", "GroupMaxSize", "GroupDesiredCapacity", "GroupInServiceInstances", "GroupPendingInstances", "GroupStandbyInstances", "GroupTerminatingInstances", "GroupTotalInstances"]
   termination_policies      = ["OldestInstance", "ClosestToNextInstanceHour"]
-  protect_from_scale_in     = true
+  protect_from_scale_in     = false
 
   launch_template {
     id      = aws_launch_template.web_server_lt.id
@@ -62,7 +62,7 @@ resource "aws_autoscaling_group" "web_server_asg" {
   instance_refresh {
     strategy = "Rolling"
     preferences {
-      min_healthy_percentage = 50
+      min_healthy_percentage = 100
     }
   }
   tag {
