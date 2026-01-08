@@ -15,7 +15,8 @@ resource "aws_subnet" "private_subnets" {
   availability_zone = each.value.az
 
   tags = {
-    Name = each.key
+    Name        = each.key
+    Environment = var.environment
   }
 }
 
@@ -27,7 +28,8 @@ resource "aws_subnet" "public_subnets" {
   availability_zone       = each.value.az
   map_public_ip_on_launch = true
   tags = {
-    Name = each.key
+    Name        = each.key
+    Environment = var.environment
   }
 }
 
@@ -40,7 +42,8 @@ resource "aws_route_table" "public_route_table" {
   }
 
   tags = {
-    Name = "${var.environment}_public_route_table"
+    Name        = "${var.environment}_public_route_table"
+    Environment = var.environment
   }
 }
 
@@ -53,7 +56,8 @@ resource "aws_route_table" "private_route_table" {
   }
 
   tags = {
-    Name = "${var.environment}_private_route_table"
+    Name        = "${var.environment}_private_route_table"
+    Environment = var.environment
   }
 }
 
@@ -76,7 +80,8 @@ resource "aws_route_table_association" "private" {
 resource "aws_internet_gateway" "internet_gateway" {
   vpc_id = aws_vpc.vpc.id
   tags = {
-    Name = "${var.environment}_internet_gateway"
+    Name        = "${var.environment}_internet_gateway"
+    Environment = var.environment
   }
 }
 
@@ -84,7 +89,8 @@ resource "aws_internet_gateway" "internet_gateway" {
 resource "aws_eip" "nat_gateway_eip" {
   depends_on = [aws_internet_gateway.internet_gateway]
   tags = {
-    Name = "${var.environment}_nat_gateway_eip"
+    Name        = "${var.environment}_nat_gateway_eip"
+    Environment = var.environment
   }
 }
 
@@ -93,6 +99,7 @@ resource "aws_nat_gateway" "nat_gateway" {
   subnet_id     = aws_subnet.public_subnets[sort(keys(aws_subnet.public_subnets))[0]].id
 
   tags = {
-    Name = "${var.environment}_nat_gateway"
+    Name        = "${var.environment}_nat_gateway"
+    Environment = var.environment
   }
 }

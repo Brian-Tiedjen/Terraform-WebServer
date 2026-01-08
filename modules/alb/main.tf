@@ -12,7 +12,8 @@ resource "aws_lb" "alb_public" {
     enabled = true
   }
   tags = {
-    name = "${var.environment}-alb-public"
+    Name        = "${var.environment}-alb-public"
+    Environment = var.environment
   }
 }
 
@@ -34,7 +35,8 @@ resource "aws_lb_target_group" "demo_alb_group" {
     unhealthy_threshold = 2
   }
   tags = {
-    Name = "${var.environment}-alb-target-group"
+    Name        = "${var.environment}-alb-target-group"
+    Environment = var.environment
   }
 }
 
@@ -84,4 +86,3 @@ resource "aws_cloudwatch_metric_alarm" "alb_unhealthy_hosts" {
     LoadBalancer = aws_lb.alb_public.arn_suffix
   }
 }
-

@@ -114,7 +114,7 @@ The goals of modularization are to:
 - Not intended for production or sensitive workloads.
 
 
-## Issues
+## Issues/Resolved updates
 - ~~Subnets not working with ALB - Investigate~~
 - ~~need 2nd instance?~~
 - ~~Using same subnet - why?~~ 
@@ -128,11 +128,8 @@ The goals of modularization are to:
 - ~~CI-driven Terraform (plan/apply via pipeline)~~
 - ~~Additional Destroy manual pipeline~~
 - ~~Modularize infrastructure (VPC, ALB, ASG modules)~~
+- ~~SSM Session Manager working for EC2~~
+ - Getting deprecated command error on DynamoDB so will need to investigate
   
 ## Future Update Ideas
-
-- SSM Session Manager working for EC2
-- Remote Backend hardening (also getting deprecated command error on DynamoDB so will need to investigate)
-- WAF?
-- HTTPS Listener
  

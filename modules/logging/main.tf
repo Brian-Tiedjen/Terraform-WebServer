@@ -56,6 +56,23 @@ resource "aws_s3_bucket_versioning" "logs_bucket_versioning" {
   }
 }
 
+resource "aws_s3_bucket_lifecycle_configuration" "logs_bucket_lifecycle" {
+  bucket = aws_s3_bucket.logs_bucket.id
+
+  rule {
+    id     = "expire-logs"
+    status = "Enabled"
+
+    expiration {
+      days = 90
+    }
+
+    noncurrent_version_expiration {
+      noncurrent_days = 30
+    }
+  }
+}
+
 #randmom string resource for S3 bucket name uniqueness
 resource "random_string" "random_string_ec2" {
   length  = 6
