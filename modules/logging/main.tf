@@ -2,7 +2,7 @@
 
 #CloudWatch Log Group for application logs
 resource "aws_cloudwatch_log_group" "app" {
-  name              = "/aws/app/demo-application-logs"
+  name              = "/aws/app/${var.environment}-application-logs"
   retention_in_days = 30
 }
 
@@ -19,7 +19,7 @@ resource "aws_cloudtrail" "demo_cloudtrail_logs" {
 
 #VPC Flow Logs
 resource "aws_cloudwatch_log_group" "vpc_flow_logs" {
-  name              = "vpc/demo-vpc-flow-logs"
+  name              = "vpc/${var.environment}-vpc-flow-logs"
   retention_in_days = 30
 }
 #setting VPC flow logs to capture REJECT traffic only to reduce costs

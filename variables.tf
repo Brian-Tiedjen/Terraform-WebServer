@@ -29,4 +29,6 @@ variable "instance_type" {
   type = string
 }
 
-variable "desired_capacity" {}
+variable "desired_capacity" {
+  type = number
+}

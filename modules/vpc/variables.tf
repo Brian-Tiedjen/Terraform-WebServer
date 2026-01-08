@@ -1,6 +1,18 @@
 variable "vpc_cidr" {
   type = string
 }
-variable "environment" {}
-variable "public_subnets" {}
-variable "private_subnets" {}
+variable "environment" {
+  type = string
+}
+variable "public_subnets" {
+  type = map(object({
+    cidr = string
+    az   = string
+  }))
+}
+variable "private_subnets" {
+  type = map(object({
+    cidr = string
+    az   = string
+  }))
+}

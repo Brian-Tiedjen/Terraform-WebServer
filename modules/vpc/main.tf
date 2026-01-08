@@ -90,7 +90,7 @@ resource "aws_eip" "nat_gateway_eip" {
 
 resource "aws_nat_gateway" "nat_gateway" {
   allocation_id = aws_eip.nat_gateway_eip.id
-  subnet_id     = aws_subnet.public_subnets["public_a"].id
+  subnet_id     = aws_subnet.public_subnets[sort(keys(aws_subnet.public_subnets))[0]].id
 
   tags = {
     Name = "${var.environment}_nat_gateway"
