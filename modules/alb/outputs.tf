@@ -12,6 +12,11 @@ output "alb_url" {
   description = "URL to access the Application Load Balancer"
 }
 
+output "alb_arn" {
+  value       = aws_lb.alb_public.arn
+  description = "ARN of the Application Load Balancer"
+}
+
 output "demo_alb_group_arns" {
   value = [aws_lb_target_group.demo_alb_group.arn]
 }

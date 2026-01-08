@@ -38,6 +38,14 @@ output "instance_role_name" {
   value = module.iam.instance_role_name
 }
 
+output "lock_table_name" {
+  value = module.database.lock_table_name
+}
+
+output "waf_web_acl_arn" {
+  value = module.waf.web_acl_arn
+}
+
 output "public_subnet_ids" {
   value = module.vpc.public_subnet_ids
 }

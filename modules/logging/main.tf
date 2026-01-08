@@ -38,8 +38,13 @@ resource "aws_s3_bucket" "logs_bucket" {
   }
   force_destroy = true
 
+
 }
 
+resource "aws_s3_account_public_access_block" "block_public_s3" {
+  block_public_policy = true
+
+}
 resource "aws_s3_bucket_versioning" "logs_bucket_versioning" {
   bucket = aws_s3_bucket.logs_bucket.id
 
