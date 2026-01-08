@@ -41,9 +41,12 @@ resource "aws_s3_bucket" "logs_bucket" {
 
 }
 
-resource "aws_s3_account_public_access_block" "block_public_s3" {
-  block_public_policy = true
-
+resource "aws_s3_bucket_public_access_block" "block_public_s3" {
+  bucket                  = aws_s3_bucket.logs_bucket.id
+  block_public_acls       = true
+  block_public_policy     = true
+  ignore_public_acls      = true
+  restrict_public_buckets = true
 }
 resource "aws_s3_bucket_versioning" "logs_bucket_versioning" {
   bucket = aws_s3_bucket.logs_bucket.id
@@ -116,4 +119,3 @@ resource "aws_s3_bucket_policy" "logs_bucket_policy" {
     ]
   })
 }
-

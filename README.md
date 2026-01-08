@@ -19,7 +19,7 @@ Key capabilities include:
 - Rolling instance refresh for safe updates
 - IAM instance profile with least-privilege intent
 - Remote Terraform state stored in S3 with DynamoDB state locking
-- CICD Intergration with GitHub Actions + Enviorment Secrets
+- CICD Integration with GitHub Actions + Environment Secrets
 - Module-based infrastructure design
 
 Centralized logging:
@@ -126,13 +126,13 @@ The goals of modularization are to:
 - ~~Add more logging~~
 - ~~Auto Scaling Group~~
 - ~~CI-driven Terraform (plan/apply via pipeline)~~
-- ~~Addional Destroy maunal pipeline~~
+- ~~Additional Destroy manual pipeline~~
 - ~~Modularize infrastructure (VPC, ALB, ASG modules)~~
   
 ## Future Update Ideas
 
 - SSM Session Manager working for EC2
-- Remote Backend hardening (also getting depreciated commanad error on Dynomo_DB so will need to investigate)
+- Remote Backend hardening (also getting deprecated command error on DynamoDB so will need to investigate)
 - WAF?
 - HTTPS Listener
  

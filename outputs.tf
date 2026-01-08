@@ -2,10 +2,6 @@ output "vpc_id" {
   value = module.vpc.vpc_id
 }
 
-output "VPC_ID" {
-  value = module.vpc.vpc_id
-}
-
 output "vpc_cidr" {
   value = var.vpc_cidr
 }
@@ -36,14 +32,6 @@ output "asg_name" {
 
 output "instance_role_name" {
   value = module.iam.instance_role_name
-}
-
-output "lock_table_name" {
-  value = module.database.lock_table_name
-}
-
-output "waf_web_acl_arn" {
-  value = module.waf.web_acl_arn
 }
 
 output "public_subnet_ids" {
