@@ -72,6 +72,17 @@ resource "aws_s3_bucket_ownership_controls" "logs_bucket_ownership_controls" {
   }
 }
 
+resource "aws_s3_bucket_server_side_encryption_configuration" "logs_bucket_sse" {
+  bucket = aws_s3_bucket.logs_bucket.id
+
+  rule {
+    bucket_key_enabled = true
+    apply_server_side_encryption_by_default {
+      sse_algorithm = "AES256"
+    }
+  }
+}
+
 #S3 Bucket Policy to allow ALB to write access logs and CloudTrail logging
 resource "aws_s3_bucket_policy" "logs_bucket_policy" {
   bucket = aws_s3_bucket.logs_bucket.id

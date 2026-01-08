@@ -3,8 +3,8 @@ provider "aws" {
   region = var.region
   default_tags {
     tags = {
-      Environment = "demo"
-      Project     = "Terraform-AWS-VPC"
+      Environment = var.environment
+      Project     = "Terraform-WebServer"
       terraform   = "true"
     }
 
