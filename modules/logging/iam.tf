@@ -11,6 +11,10 @@ resource "aws_iam_role" "vpc_flow_role" {
       Action = "sts:AssumeRole"
     }]
   })
+  tags = {
+    Name        = "${var.environment}-vpc-flow-logs-role"
+    Environment = var.environment
+  }
 }
 
 resource "aws_iam_role_policy" "vpc_flow_policy" {

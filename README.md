@@ -61,6 +61,12 @@ Primary cost drivers:
 - CloudWatch logs and alarms
 - S3 storage
 
+## Assumptions & Tradeoffs
+
+- Single NAT Gateway (cost-aware, single-AZ dependency)
+- Single region deployment
+- Logs bucket uses `force_destroy` and short retention for demo convenience
+
 
 ## Running Web Server (via ALB)
 <img width="501" height="223" alt="image" src="https://github.com/user-attachments/assets/e606c490-2ffa-45e0-aedb-76787abb2257" />
