@@ -4,6 +4,10 @@
 resource "aws_cloudwatch_log_group" "app" {
   name              = "/aws/app/${var.environment}-application-logs"
   retention_in_days = 30
+  tags = {
+    Name        = "${var.environment}-app-logs"
+    Environment = var.environment
+  }
 }
 
 #CloudTrail logging
@@ -13,6 +17,10 @@ resource "aws_cloudtrail" "demo_cloudtrail_logs" {
   is_multi_region_trail         = true
   enable_log_file_validation    = true
   include_global_service_events = true
+  tags = {
+    Name        = "${var.environment}-cloudtrail"
+    Environment = var.environment
+  }
 
   depends_on = [aws_s3_bucket_policy.logs_bucket_policy]
 }
@@ -21,6 +29,10 @@ resource "aws_cloudtrail" "demo_cloudtrail_logs" {
 resource "aws_cloudwatch_log_group" "vpc_flow_logs" {
   name              = "vpc/${var.environment}-vpc-flow-logs"
   retention_in_days = 30
+  tags = {
+    Name        = "${var.environment}-vpc-flow-logs"
+    Environment = var.environment
+  }
 }
 #setting VPC flow logs to capture REJECT traffic only to reduce costs
 resource "aws_flow_log" "vpc_rejects" {
@@ -28,6 +40,10 @@ resource "aws_flow_log" "vpc_rejects" {
   traffic_type    = "REJECT"
   log_destination = aws_cloudwatch_log_group.vpc_flow_logs.arn
   iam_role_arn    = aws_iam_role.vpc_flow_role.arn
+  tags = {
+    Name        = "${var.environment}-vpc-flow-rejects"
+    Environment = var.environment
+  }
 }
 
 #Create S3 bucket for backups with versioning enabled and private ACL Note:Using one bucket for ALB logs and CloudTrail logs for cost efficiency in demo

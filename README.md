@@ -46,6 +46,7 @@ Centralized logging:
 - terraform destroy -auto-approve
 
 Note: ALB deletion protection is disabled to allow clean teardown.
+Note: The logs S3 bucket uses `force_destroy = true` for demo convenience.
 
 
 ## Costs (Estimated)
